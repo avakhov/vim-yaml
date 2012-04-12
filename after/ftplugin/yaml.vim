@@ -14,15 +14,21 @@ setlocal indentexpr=GetYamlIndent()
 setlocal indentkeys=o,O,*<Return>,!^F
 
 function! GetYamlIndent()
-  let lnum = v:lnum - 1
-  if lnum == 0
+  let prevlnum = v:lnum - 1
+  if prevlnum == 0
     return 0
   endif
-  let line = substitute(getline(lnum),'\s\+$','','')
-  let indent = indent(lnum)
+  let line = substitute(getline(v:lnum),'\s\+$','','')
+  let prevline = substitute(getline(prevlnum),'\s\+$','','')
+
+  let indent = indent(prevlnum)
   let increase = indent + &sw
-  if line =~ ':$'
+  let decrease = indent - &sw
+
+  if prevline =~ ':$'
     return increase
+  elseif prevline =~ '^\s\+\-' && line =~ '^\s\+[^-]\+:'
+    return decrease
   else
     return indent
   endif
